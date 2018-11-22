@@ -1,14 +1,23 @@
 import { filePathSchema } from './file-path.schema';
 import { projectTypeSchema } from './project-type.schema';
 import { browserTargetsSchema } from './browser-targets.schema';
+import { toTypeString } from './to-schema';
 
 export const projectSchema = {
   item: 'object',
   additionalProperties: false,
   properties: {
     sourceRoot: filePathSchema,
-    browserTargets: browserTargetsSchema,
+    outputPath: toTypeString(),
+    tsConfig: toTypeString(),
     projectType: projectTypeSchema,
+    browserTargets: browserTargetsSchema,
   },
-  required: ['browserTargets', 'projectType']
+  required: [
+    'sourceRoot',
+    'outputPath',
+    'tsConfig',
+    'projectType',
+    'browserTargets',
+  ]
 };

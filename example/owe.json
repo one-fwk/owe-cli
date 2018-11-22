@@ -1,55 +1,53 @@
 {
   "projects": {
     "appwriter": {
-      "root": "apps/appwriter",
       "sourceRoot": "apps/appwriter",
       "projectType": "extension",
-      "options": {
-        "outputPath": "dist/apps/appwriter",
-        "tsConfig": "apps/appwriter/tsconfig.app.json",
-        "contexts": {
-          "popup": {
-            "entryModule": "AppPopupModule",
-            "main": "popup/app.popup.module",
-            "outputFile": "popup/main",
-            "index": "popup/index.html"
-          },
-          "contentScripts": [
-            {
-              "entryModule": "AppContentModule",
-              "main": "content/app.content.module",
-              "outputFile": "content/main",
-              "matches": ["<all_urls>"],
-              "allFrames": true
-            },
-            {
-              "entryModule": "ContentWordModule",
-              "main": "content/word/content.word.module",
-              "outputFile": "content/word"
-            }
-          ],
-          "background": {
-            "entryModule": "AppBackgroundModule",
-            "main": "app.background.module",
-            "outputFile": "background"
-          }
+      "outputPath": "dist/apps/appwriter",
+      "tsConfig": "apps/appwriter/tsconfig.app.json",
+      "browserTargets": ["chrome", "edge", "firefox"],
+      "contexts": {
+        "popup": {
+          "entryModule": "AppPopupModule",
+          "main": "popup/app.popup.module",
+          "outputFile": "popup/main",
+          "index": "popup/index.html"
         },
-        "manifest": {
-          "name": "Appwriter",
-          "author": "Wizkids A/S",
-          "permissions": [
-            "*://*.google.com/*",
-            "<all_urls>",
-            "*://*.lingapps.dk/*",
-            "*://*.wizkids.dk/*",
-            "webNavigation",
-            "webRequest",
-            "webRequestBlocking",
-            "tabs"
-          ],
-          "chrome": {
-            "contentSecurityPolicy": "script-src 'self' 'sha256-MhvddDCgXl8osKtkruB9ttNaKc9pfk6NXBdJvtr602Q=' 'sha256-owgPckWafrsrwS6mgtj423kTKzpIkoOoHlWckekH9JA=' 'sha256-K615d6zqfoojMrTJXvIPsWOKPNXqnoVgglBmlmX0Npc='; object-src 'self'"
+        "contentScripts": [
+          {
+            "entryModule": "AppContentModule",
+            "main": "content/app.content.module",
+            "outputFile": "content/main",
+            "matches": ["<all_urls>"],
+            "allFrames": true
+          },
+          {
+            "entryModule": "ContentWordModule",
+            "main": "content/word/content.word.module",
+            "outputFile": "content/word"
           }
+        ],
+        "background": {
+          "entryModule": "AppBackgroundModule",
+          "main": "app.background.module",
+          "outputFile": "background"
+        }
+      },
+      "manifest": {
+        "name": "Appwriter",
+        "author": "Wizkids A/S",
+        "permissions": [
+          "*://*.google.com/*",
+          "<all_urls>",
+          "*://*.lingapps.dk/*",
+          "*://*.wizkids.dk/*",
+          "webNavigation",
+          "webRequest",
+          "webRequestBlocking",
+          "tabs"
+        ],
+        "chrome": {
+          "contentSecurityPolicy": "script-src 'self' 'sha256-MhvddDCgXl8osKtkruB9ttNaKc9pfk6NXBdJvtr602Q=' 'sha256-owgPckWafrsrwS6mgtj423kTKzpIkoOoHlWckekH9JA=' 'sha256-K615d6zqfoojMrTJXvIPsWOKPNXqnoVgglBmlmX0Npc='; object-src 'self'"
         }
       }
     }

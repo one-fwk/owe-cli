@@ -1,7 +1,14 @@
 import { join } from 'path';
 
-type Const<T> = { const: T };
-type Enum<T> = { enum: T };
+export type Const<T> = { const: T };
+export type Enum<T> = { enum: T };
+export type Type = 'string' | 'object' | 'array' | 'number' | 'boolean';
+
+export const toType = (type: Type) => (schema: any = {}) => ({ ...schema, type });
+
+export const toTypeString = toType('string');
+export const toTypeArray = toType('array');
+export const toTypeObject = toType('array');
 
 export function toSchemaConstants<T>(obj: Object): Const<T>[] {
   return (<any>Object).values(obj).map((value: T) => ({

@@ -1,27 +1,38 @@
-import { Inject, Injector, Module, OnModuleInit } from '@one/core';
+import { Inject, Injector, Module, OnModuleInit, Reflector } from '@one/core';
+import * as program from 'commander';
 
-import { AbstractAction } from './actions';
-import { CommandsModule, COMMANDS, AbstractCommand } from './commands';
+import { CommandsModule, COMMANDS, AbstractCommand, COMMAND_ACTION } from './commands';
+import { Action } from './actions';
+import { WorkspaceModule, WorkspaceService } from './workspace';
 
 @Module({
   imports: [
-    CommandsModule
+    WorkspaceModule,
+    CommandsModule,
   ],
 })
 export class CliModule implements OnModuleInit {
   @Inject(COMMANDS)
-  private readonly commands: AbstractCommand[];
+  private readonly commands!: AbstractCommand[];
 
-  constructor(private readonly injector: Injector) {}
+  constructor(
+    private readonly workspace: WorkspaceService,
+    private readonly injector: Injector,
+  ) {}
 
-  onModuleInit() {
+  async onModuleInit() {
+    await this.workspace.validateSchema();
+
     this.commands.forEach(command => {
-      const action = this.injector.get<AbstractAction>(command);
+      const actionRef = Reflector.get(COMMAND_ACTION, command);
+      const action = this.injector.get<Action>(actionRef);
       const instance = this.injector.resolve<AbstractCommand>(<any>command);
 
       instance.action = action;
 
       instance.load();
     });
+
+    program.parse(process.argv);
   }
 }

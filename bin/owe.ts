@@ -5,7 +5,6 @@ import * as commander from 'commander';
 import { CliModule } from '../src';
 
 (async () => {
-  commander.version(require('../package.json').version);
 
   const cli = new OneFactory(CliModule);
   await cli.start();

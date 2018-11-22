@@ -1,15 +1,13 @@
-import { Inject, Injectable } from '@one/core';
-import { CommanderStatic } from 'commander';
+import { Injectable } from '@one/core';
+import * as program from 'commander';
 
-import { AbstractAction } from '../actions';
-import { PROGRAM } from '../program';
+import { Action } from '../actions';
 
 @Injectable()
-export abstract class AbstractCommand<A> {
-  @Inject(PROGRAM)
-  protected readonly program: CommanderStatic;
+export abstract class AbstractCommand {
+  protected readonly program = program;
 
-  public action: AbstractAction;
+  public action!: Action;
 
   public abstract load(): void;
 }

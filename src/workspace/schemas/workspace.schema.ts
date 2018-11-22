@@ -1,6 +1,6 @@
 import { projectSchema } from './project.schema';
 
-export const oweSchema = {
+export const workspaceSchema = {
   item: 'object',
   additionalProperties: false,
   properties: {

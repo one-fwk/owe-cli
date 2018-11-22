@@ -7,12 +7,6 @@ import { filePathSchema } from '../file-path.schema';
 import { projectTypeSchema } from '../project-type.schema';
 import { browserTargetsSchema } from '../browser-targets.schema';
 
-function removeRequiredProps(schema: { required: string[] }) {
-  const required = schema.required;
-  schema.required = [];
-  return required;
-}
-
 describe('Schema validation', () => {
   const ajv = new Ajv({
     useDefaults: true,
@@ -30,12 +24,12 @@ describe('Schema validation', () => {
 
     beforeAll(async () => {
       schema = new MockSchema(
-        'owe.schema#oweSchema',
+        'owe.schema#workspaceSchema',
         ['project.schema#projectSchema']
       );
 
-      const oweSchema = await schema.mock();
-      validate = ajv.compile(oweSchema);
+      const workspaceSchema = await schema.mock();
+      validate = ajv.compile(workspaceSchema);
     });
 
     afterAll(() => {
