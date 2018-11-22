@@ -1,0 +1,12 @@
+{
+  "additionalProperties": false,
+  "required": ["projects", "browserTargets"],
+  "properties": {
+    "browserTargets": {
+      "type": "array"
+    },
+    "projects": {
+      "type": "object"
+    }
+  }
+}
