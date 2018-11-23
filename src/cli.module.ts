@@ -2,8 +2,9 @@ import { Inject, Injector, Module, OnModuleInit, Reflector } from '@one/core';
 import * as program from 'commander';
 
 import { CommandsModule, COMMANDS, AbstractCommand, COMMAND_ACTION } from './commands';
-import { Action } from './actions';
 import { WorkspaceModule, WorkspaceService } from './workspace';
+import { AbstractAction } from './actions';
+import * as pkg from '../package.json';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { WorkspaceModule, WorkspaceService } from './workspace';
 })
 export class CliModule implements OnModuleInit {
   @Inject(COMMANDS)
-  private readonly commands!: AbstractCommand[];
+  private readonly commands: AbstractCommand[];
 
   constructor(
     private readonly workspace: WorkspaceService,
@@ -21,16 +22,17 @@ export class CliModule implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    await this.workspace.validateSchema();
+    await this.workspace.validate();
+    program.version(pkg.version);
 
-    this.commands.forEach(command => {
-      const actionRef = Reflector.get(COMMAND_ACTION, command);
-      const action = this.injector.get<Action>(actionRef);
-      const instance = this.injector.resolve<AbstractCommand>(<any>command);
+    // @TODO: Move this into CommandsModule
+    this.commands.forEach(commandRef => {
+      const actionRef = Reflector.get(COMMAND_ACTION, commandRef);
+      const action = this.injector.get<AbstractAction>(actionRef);
+      const command = this.injector.resolve<AbstractCommand>(<any>commandRef);
 
-      instance.action = action;
-
-      instance.load();
+      command.action = action;
+      command.load();
     });
 
     program.parse(process.argv);

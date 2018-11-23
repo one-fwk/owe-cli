@@ -24,7 +24,9 @@ export interface ChromeManifest extends MutualManifest {
 
 export interface EdgeManifest {}
 
-export interface Manifest {
+export interface BrowserManifest extends FirefoxManifest, ChromeManifest, EdgeManifest {}
+
+export interface Manifest extends BrowserManifest {
   name: string;
   author: string;
   version: string;

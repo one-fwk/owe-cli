@@ -9,6 +9,9 @@ export const createMainTemplate = (entryPath: string, entryModule: string, hmr?:
     await app.start();
     
     // Should it be module.hot.accept?
-    ${hmr ? `module.hot.dispose(() => app.destroy());` : ''}
+    ${hmr ? `
+      module.hot.accept();
+      module.hot.dispose(() => app.destroy());
+    ` : ''}
   });
 `;

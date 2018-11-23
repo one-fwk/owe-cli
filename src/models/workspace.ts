@@ -14,6 +14,7 @@ export interface Project {
 }
 
 export interface Workspace {
+  defaultProject?: string;
   projects: {
     [projectName: string]: Project;
   }
