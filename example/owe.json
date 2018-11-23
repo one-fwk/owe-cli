@@ -25,8 +25,7 @@
           }
         ],
         "background": {
-          "entryModule": "AppBackgroundModule",
-          "main": "app.background.module",
+          "main": "background/app.background.module#AppBackgroundModule",
           "outputFile": "background"
         }
       },

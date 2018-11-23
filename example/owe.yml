@@ -1,0 +1,26 @@
+projects:
+  appwriter:
+    sourceRoot: apps/appwriter
+    projectType: extension
+    outputPath: dist/apps/appwriter
+    tsConfig: apps/appwriter/tsconfig.app.json
+    browserTargets:
+      - chrome
+      - edge
+      - firefox
+    contexts:
+      popup:
+        main: popup/app.popup.module#AppPopupModule
+        outputFile: popup/main
+        index: popup/index.html
+      contentScripts:
+      - main: content/app.content.module#AppContentModule
+        outputFile: content/main
+        matches:
+          - <all_urls>
+        allFrames: true
+      - main: content/word/content.word.module#ContentWordModule
+        outputFile: content/word
+      background:
+        main: background/app.background.module#AppBackgroundModule
+        outputFile: background

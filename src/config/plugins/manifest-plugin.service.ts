@@ -2,7 +2,7 @@ import { Injectable, Utils } from '@one/core';
 import { snakeCase } from 'voca';
 import { Compiler } from 'webpack';
 
-import { BrowserManifest, BrowserTarget, Manifest } from '../../models';
+import { BrowserManifest, BrowserTarget } from '../../models';
 import { WebpackPlugin } from './webpack-plugin';
 
 export type CompilationAsset = {
@@ -27,7 +27,7 @@ export class ManifestPlugin extends WebpackPlugin {
     return obj;
   }
 
-  private snakerizeManifest(manifest: Manifest) {
+  private snakerize(keys: any[], obj: any) {
     const traverse = (parent: any, next: any) => {
       if (Utils.isString(next) && !Utils.isNil(next)) {
         const newKey = snakeCase(next);
@@ -43,8 +43,8 @@ export class ManifestPlugin extends WebpackPlugin {
       }
     };
 
-    this.snakerizeKeys.forEach(key => {
-      traverse(manifest, key);
+    keys.forEach(key => {
+      traverse(obj, key);
     });
   }
 
@@ -55,10 +55,12 @@ export class ManifestPlugin extends WebpackPlugin {
       delete (this.workspace.project.manifest as any)[browser];
     });
 
-    return JSON.stringify(this.snakerizeManifest({
-      ...this.workspace.project.manifest,
-      ...browserManifest,
-    }));
+    return JSON.stringify(
+      this.snakerize(this.snakerizeKeys, {
+        ...this.workspace.project.manifest,
+        ...browserManifest,
+      }),
+    );
   }
 
   apply(compiler: Compiler) {

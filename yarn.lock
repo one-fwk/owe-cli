@@ -215,6 +215,11 @@
     "@types/uglify-js" "*"
     source-map "^0.6.0"
 
+"@types/yaml@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@types/yaml/-/yaml-1.0.1.tgz#79ecc2a6c77485c815d4a98ac3fa5d8c23c1695b"
+  integrity sha512-Bq8/v5jtk4TsPY4qSmlEM2hucw5vgA7jWaDV6NFNv6ZjSoqxicRB5RH8Cc1eMEr0VcbgnysGIujg6hR3nZ14sw==
+
 "@webassemblyjs/ast@1.7.11":
   version "1.7.11"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.7.11.tgz#b988582cafbb2b095e8b556526f30c90d057cace"
@@ -6487,6 +6492,11 @@ yallist@^3.0.0, yallist@^3.0.2:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-3.0.3.tgz#b4b049e314be545e3ce802236d6cd22cd91c3de9"
   integrity sha512-S+Zk8DEWE6oKpV+vI3qWkaK+jSbIK86pCwe2IF/xwIpQ8jEuxpw9NyaGjmp9+BoJv5FV2piqCDcoCtStppiq2A==
+
+yaml@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.0.2.tgz#77941a457090e17b8ca65b53322e68a050e090d4"
+  integrity sha512-vPmXtExk6AV7F5l2N5jW4LhbhZZPPN+xOK8x/+EgSXsXoawuo19Iqa+9nYMwrltsi6nl0rMKiROA/SAfG2OgUw==
 
 yargs-parser@10.x, yargs-parser@^10.1.0:
   version "10.1.0"

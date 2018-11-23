@@ -2,6 +2,7 @@ import { Injectable } from '@one/core';
 import * as fs from 'fs-extra';
 import Ajv from 'ajv';
 import * as path from 'path';
+import * as YAML from 'yaml';
 
 import { BrowserTarget, Project, Workspace } from '../models';
 import { workspaceSchema } from './schemas';
@@ -45,14 +46,31 @@ export class WorkspaceService {
     this.browser = browser;
   }
 
-  public async validate() {
-    const schemaPath = await findUp('owe.json', process.cwd());
+  private async parseSchema(workspacePath: string): Promise<Workspace> {
+    const data = await fs.readFile(workspacePath, 'utf8');
 
-    if (!schemaPath) {
+    switch (path.parse(workspacePath).ext) {
+      case '.json':
+        return JSON.parse(data);
+
+      case '.yaml':
+      case '.yml':
+        return YAML.parse(data);
+    }
+  }
+
+  public async validate() {
+    const workspacePath = await findUp([
+      'owe.yaml',
+      'owe.yml',
+      'owe.json',
+    ], process.cwd());
+
+    if (!workspacePath) {
       throw new Error('Workspace definitions could not be found');
     }
 
-    const schemaDef = await fs.readJson(schemaPath);
+    const schemaDef = await this.parseSchema(workspacePath);
     const valid = this.ajv.validate(workspaceSchema, schemaDef);
 
     if (!valid) {
