@@ -1,4 +1,5 @@
 export interface BaseContext {
+  uuid?: string;
   entryModule?: string;
   main: string;
   outputFile: string;
@@ -6,6 +7,7 @@ export interface BaseContext {
 
 export interface PopupContext extends BaseContext {
   index?: string;
+  outputHtml?: string;
 }
 
 export interface ContentScriptContext extends BaseContext {
@@ -23,6 +25,6 @@ export interface Contexts {
 
 export enum Context {
   BACKGROUND = 'background',
-  CONTENT_SCRIPT = 'contentScript',
+  CONTENT_SCRIPTS = 'contentScripts',
   POPUP = 'popup',
 }

@@ -18,6 +18,7 @@ export interface FirefoxManifest extends MutualManifest {
 }
 
 export interface ChromeManifest extends MutualManifest {
+  manifestVersion?: number;
   contentSecurityPolicy?: string;
   versionName?: string;
 }

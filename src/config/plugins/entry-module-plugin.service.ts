@@ -1,7 +1,11 @@
 import { Injectable } from '@one/core';
-import { BaseContext } from '../../models';
+import * as webpack from 'webpack';
+import { Compiler } from 'webpack';
 
+import { BaseContext } from '../../models';
 import { WebpackPlugin } from './webpack-plugin';
+import Compilation = webpack.compilation.Compilation;
+import CompilationHooks = webpack.compilation.CompilationHooks;
 
 @Injectable()
 export class EntryModulePlugin extends WebpackPlugin {
@@ -40,7 +44,13 @@ export class EntryModulePlugin extends WebpackPlugin {
     `;
   }
 
-  apply(compiler) {
+  public createEntryPoints() {
+    return {
+
+    };
+  }
+
+  apply(compiler: Compiler) {
     compiler.hooks.beforeCompile.tap(this.constructor.name, (compilation) => {
 
     });

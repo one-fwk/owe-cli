@@ -12,7 +12,7 @@ projects:
       popup:
         main: popup/app.popup.module#AppPopupModule
         outputFile: popup/main
-        index: popup/index.html
+        outputHtml: popup/index.html
       contentScripts:
       - main: content/app.content.module#AppContentModule
         outputFile: content/main

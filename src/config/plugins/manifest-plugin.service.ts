@@ -2,7 +2,7 @@ import { Injectable, Utils } from '@one/core';
 import { snakeCase } from 'voca';
 import { Compiler } from 'webpack';
 
-import { BrowserManifest, BrowserTarget } from '../../models';
+import { BrowserManifest, BrowserTarget, ContentScriptContext, Context, Project } from '../../models';
 import { WebpackPlugin } from './webpack-plugin';
 
 export type CompilationAsset = {
@@ -12,10 +12,17 @@ export type CompilationAsset = {
 
 @Injectable()
 export class ManifestPlugin extends WebpackPlugin {
-  private readonly snakerizeKeys = [
+  private readonly manifestKeys = [
     'defaultLocale',
     'contentSecurityPolicy',
     'versionName',
+    'manifestVersion',
+    'homepageUrl',
+    'devtoolsPage',
+  ];
+
+  private readonly contentScriptKeys = [
+    'allFrames',
   ];
 
   private renameProperty(obj: any, oldKey: string, newKey: string) {
@@ -46,26 +53,51 @@ export class ManifestPlugin extends WebpackPlugin {
     keys.forEach(key => {
       traverse(obj, key);
     });
+
+    return obj;
   }
 
-  private createManifest() {
-    const browserManifest: BrowserManifest = (this.workspace.project.manifest as any)[this.workspace.browser];
+  private applyProjectContexts(): Project {
+    const { contexts } = this.workspace.getProject();
+    const { index, outputHtml } = contexts[Context.POPUP];
+
+    const contentScripts = contexts[Context.CONTENT_SCRIPTS]
+      .map(cs => this.snakerize(this.contentScriptKeys, cs))
+      .map((cs: ContentScriptContext) => ({
+        ...cs,
+        js: [cs.outputFile],
+      }));
+
+    const popup = {
+      browser_action: {
+        default_popup: index || outputHtml,
+      }
+    };
+
+    const background = {
+      scripts: [contexts[Context.BACKGROUND].outputFile],
+    };
+  }
+
+  private createManifest({ manifest }: Project) {
+    const browserManifest: BrowserManifest = (manifest as any)[this.workspace.browser];
 
     (<any>Object).values(BrowserTarget).forEach((browser: string) => {
-      delete (this.workspace.project.manifest as any)[browser];
+      delete (manifest as any)[browser];
     });
 
-    return JSON.stringify(
-      this.snakerize(this.snakerizeKeys, {
-        ...this.workspace.project.manifest,
-        ...browserManifest,
-      }),
-    );
+    manifest = this.snakerize(this.manifestKeys, {
+      ...manifest,
+      ...browserManifest,
+    });
+
+    return JSON.stringify(manifest);
   }
 
   apply(compiler: Compiler) {
     compiler.hooks.emit.tap(this.constructor.name, (compilation) => {
-      const manifest = this.createManifest();
+      const project = this.applyProjectContexts();
+      const manifest = this.createManifest(project);
 
       compilation.assets['manifest.json'] = {
         source: () => manifest,

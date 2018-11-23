@@ -22,6 +22,16 @@ export class WorkspaceService {
     return this.dir(this.project.sourceRoot);
   }
 
+  /**
+   * Returns a copy of project
+   */
+  public getProject(): Project {
+    return { ...this.project };
+  }
+
+  /**
+   * Returns an absolute path relative to CWD
+   */
   public dir(...paths: string[]) {
     return path.join(process.cwd(), ...paths);
   }
