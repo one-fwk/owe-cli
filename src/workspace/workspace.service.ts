@@ -73,6 +73,10 @@ export class WorkspaceService {
     }
   }
 
+  public validateWorkspaceSchema(workspace: Workspace) {
+    return this.ajv.validate(workspaceSchema, workspace);
+  }
+
   public async validate() {
     const workspacePath = await findUp([
       'owe.yaml',
@@ -84,13 +88,13 @@ export class WorkspaceService {
       throw new Error('Workspace definitions could not be found');
     }
 
-    const schemaDef = await this.parseSchema(workspacePath);
-    const valid = this.ajv.validate(workspaceSchema, schemaDef);
+    const workspace = await this.parseSchema(workspacePath);
+    const valid = this.validateWorkspaceSchema(workspace);
 
     if (!valid) {
       // handle errors here
     } else {
-      this.schema = schemaDef;
+      this.schema = workspace;
     }
   }
 }
