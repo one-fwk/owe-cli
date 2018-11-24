@@ -1,5 +1,6 @@
 {
   "scripts": {
-    "serve": "one serve"
+    "serve": "owe serve appwriter chrome",
+    "compile": "webpack --config webpack.config.js"
   }
 }

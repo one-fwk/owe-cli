@@ -8,28 +8,24 @@
       "browserTargets": ["chrome", "edge", "firefox"],
       "contexts": {
         "popup": {
-          "entryModule": "AppPopupModule",
-          "main": "popup/app.popup.module",
+          "main": "popup/app.popup.module#AppPopupModule",
           "outputFile": "popup/main",
           "index": "popup/index.html"
         },
         "contentScripts": [
           {
-            "entryModule": "AppContentModule",
-            "main": "content/app.content.module",
+            "main": "content/app.content.module#AppContentModule",
             "outputFile": "content/main",
             "matches": ["<all_urls>"],
             "allFrames": true
           },
           {
-            "entryModule": "ContentWordModule",
-            "main": "content/word/content.word.module",
+            "main": "content/word/content.word.module#ContentWordModule",
             "outputFile": "content/word"
           }
         ],
         "background": {
-          "entryModule": "AppBackgroundModule",
-          "main": "app.background.module",
+          "main": "background/app.background.module#AppBackgroundModule",
           "outputFile": "background"
         }
       },
