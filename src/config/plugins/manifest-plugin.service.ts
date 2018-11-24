@@ -1,9 +1,18 @@
-import { Injectable, Utils } from '@one/core';
-import { snakeCase } from 'voca';
+import { Injectable } from '@one/core';
 import { Compiler } from 'webpack';
 
-import { BrowserManifest, BrowserTarget, ContentScriptContext, Context, Project } from '../../models';
 import { WebpackPlugin } from './webpack-plugin';
+import { snakerize } from '../../util';
+import {
+  BackgroundContext,
+  BrowserManifest,
+  BrowserTarget, ContentScript,
+  ContentScriptContext,
+  Context,
+  CustomManifest,
+  Manifest, PopupContext,
+  Project,
+} from '../../models';
 
 export type CompilationAsset = {
   source(): string | Buffer;
@@ -21,87 +30,60 @@ export class ManifestPlugin extends WebpackPlugin {
     'devtoolsPage',
   ];
 
-  private readonly contentScriptKeys = [
-    'allFrames',
-  ];
+  /**
+   * Apply contexts from our custom manifest to the used manifest
+   * @param manifest
+   */
+  private applyManifestContexts(manifest: Manifest) {
+    const { contexts } = this.workspace.project;
 
-  private renameProperty(obj: any, oldKey: string, newKey: string) {
-    const value = obj[oldKey];
+    if (contexts[Context.CONTENT_SCRIPTS]) {
+      manifest.content_scripts = (<ContentScriptContext[]>contexts[Context.CONTENT_SCRIPTS])
+        .map((csc): ContentScript => ({
+          all_frames: csc.allFrames,
+          matches: csc.matches,
+          js: [csc.outputFile],
+        }));
+    }
 
-    delete obj[oldKey];
-    obj[newKey] = value;
+    if (contexts[Context.POPUP]) {
+      const { index, outputHtml } = <PopupContext>contexts[Context.POPUP];
 
-    return obj;
+      manifest.browser_action = {
+        default_popup: (index || outputHtml)!,
+      };
+    }
+
+    if (contexts[Context.BACKGROUND]) {
+      const { outputFile } = <BackgroundContext>contexts[Context.BACKGROUND];
+
+      manifest.background = {
+        scripts: [outputFile],
+      };
+    }
+
+    return manifest;
   }
 
-  private snakerize(keys: any[], obj: any) {
-    const traverse = (parent: any, next: any) => {
-      if (Utils.isString(next) && !Utils.isNil(next)) {
-        const newKey = snakeCase(next);
-        this.renameProperty(parent, next, newKey);
-
-      } else if (Array.isArray(next)) {
-        next.forEach(n => traverse(parent, n));
-
-      } else if (Utils.isObject(next)) {
-        Object.keys(next).forEach(prop => {
-          traverse(parent[prop], next[prop]);
-        });
-      }
-    };
-
-    keys.forEach(key => {
-      traverse(obj, key);
-    });
-
-    return obj;
-  }
-
-  private applyProjectContexts(): Project {
-    const { contexts } = this.workspace.getProject();
-    const { index, outputHtml } = contexts[Context.POPUP];
-
-    const contentScripts = contexts[Context.CONTENT_SCRIPTS]
-      .map(cs => this.snakerize(this.contentScriptKeys, cs))
-      .map((cs: ContentScriptContext) => ({
-        ...cs,
-        js: [cs.outputFile],
-      }));
-
-    const popup = {
-      browser_action: {
-        default_popup: index || outputHtml,
-      }
-    };
-
-    const background = {
-      scripts: [contexts[Context.BACKGROUND].outputFile],
-    };
-  }
-
-  private createManifest({ manifest }: Project) {
-    const browserManifest: BrowserManifest = (manifest as any)[this.workspace.browser];
+  private createManifest(): Manifest {
+    const { manifest } = this.workspace.project;
 
     (<any>Object).values(BrowserTarget).forEach((browser: string) => {
-      delete (manifest as any)[browser];
+      delete (<any>manifest)[browser];
     });
 
-    manifest = this.snakerize(this.manifestKeys, {
-      ...manifest,
-      ...browserManifest,
-    });
-
-    return JSON.stringify(manifest);
+    return snakerize(this.manifestKeys, manifest);
   }
 
   apply(compiler: Compiler) {
     compiler.hooks.emit.tap(this.constructor.name, (compilation) => {
-      const project = this.applyProjectContexts();
-      const manifest = this.createManifest(project);
+      const manifest = this.createManifest();
+      this.applyManifestContexts(manifest);
+      const manifestSource = JSON.stringify(manifest);
 
       compilation.assets['manifest.json'] = {
-        source: () => manifest,
-        size: () => manifest.length,
+        source: () => manifestSource,
+        size: () => manifestSource.length,
       } as CompilationAsset;
     });
   }

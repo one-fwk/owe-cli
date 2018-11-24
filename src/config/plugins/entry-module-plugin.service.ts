@@ -4,23 +4,28 @@ import { Compiler } from 'webpack';
 
 import { BaseContext } from '../../models';
 import { WebpackPlugin } from './webpack-plugin';
-import Compilation = webpack.compilation.Compilation;
-import CompilationHooks = webpack.compilation.CompilationHooks;
 
 @Injectable()
 export class EntryModulePlugin extends WebpackPlugin {
   private getProjectContext(context: BaseContext)  {
-    const splt = context.main.split('#');
+    const mainSplit = context.main.split('#');
 
-    if (splt.length > 1) {
+    if (mainSplit.length > 1) {
       return {
         ...context,
-        main: splt[0],
-        entryModule: splt[1],
+        main: mainSplit[0],
+        entryModule: mainSplit[1],
       } as BaseContext;
     }
 
     return context;
+  }
+
+  private generateHmrTemplate() {
+    return ''/*this.hmr ? `
+          module.hot.accept();
+          module.hot.dispose(() => app.destroy());
+        ` : ''*/
   }
 
   private createMainTemplate(context: BaseContext) {
@@ -36,10 +41,7 @@ export class EntryModulePlugin extends WebpackPlugin {
         const app = new OneFactory(${entryModule});
         await app.start();
   
-        ${''/*hmr ? `
-          module.hot.accept();
-          module.hot.dispose(() => app.destroy());
-        ` : ''*/}
+        ${this.generateHmrTemplate()}
       });
     `;
   }
@@ -48,6 +50,10 @@ export class EntryModulePlugin extends WebpackPlugin {
     return {
 
     };
+  }
+
+  private applyUuids() {
+
   }
 
   apply(compiler: Compiler) {

@@ -6,7 +6,7 @@ import { Input } from '../models';
 @Injectable()
 export class ServeAction extends AbstractAction {
   private getProject(inputs: Input[]) {
-    const { value } = inputs.find(input => input.name === 'project');
+    const { value } = inputs.find(input => input.name === 'project')!;
 
     if (!value) {
       throw new Error(`You haven't provided a project, nor have you set a default.`);
@@ -16,7 +16,7 @@ export class ServeAction extends AbstractAction {
   }
 
   private getBrowser(inputs: Input[]) {
-    const { value } = inputs.find(input => input.name === 'browser');
+    const { value } = inputs.find(input => input.name === 'browser')!;
 
     if (!value) {
       throw new Error(`You must specify a browser`);

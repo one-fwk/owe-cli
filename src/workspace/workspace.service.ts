@@ -41,7 +41,8 @@ export class WorkspaceService {
       throw new Error(`Provided project ${project} is invalid and doesn't exist in your schematic.`);
     }
 
-    this.project = this.schema.projects[project];
+    // Never directly manipulate the project object
+    this.project = Object.freeze(this.schema.projects[project]);
   }
 
   public targetBrowser(browser: BrowserTarget) {
@@ -66,6 +67,9 @@ export class WorkspaceService {
       case '.yaml':
       case '.yml':
         return YAML.parse(data);
+
+      default:
+        throw new Error('Could not parse schema, invalid extension used');
     }
   }
 

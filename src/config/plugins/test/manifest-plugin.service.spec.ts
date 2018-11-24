@@ -1,56 +1,77 @@
 import { ManifestPlugin } from '../manifest-plugin.service';
 
 describe('ManifestPlugin', () => {
-  describe('snakerizeManifest', () => {
-    let manifestPlugin: any;
+  let manifestPlugin: any;
+  let manifest: any;
 
-    beforeEach(() => {
-      manifestPlugin = new ManifestPlugin({} as any);
+  beforeEach(() => {
+    manifestPlugin = new (<any>ManifestPlugin)();
+    manifestPlugin.workspace = {};
+    manifest = {};
+  });
 
-      (<any>manifestPlugin).snakerizeKeys = [
-        'defaultLocale',
-        {
-          chrome: [
-            'contentSecurityPolicy',
-            'versionName',
+  describe('applyManifestContexts', () => {
+    it('should apply content scripts context', () => {
+      manifestPlugin.workspace.project = {
+        contexts: {
+          contentScripts: [
             {
-              nestedProperty: ['versionControl'],
+              outputFile: '',
+              allFrames: true,
+              matches: [],
             },
           ],
-        },
-      ];
-    });
+        }
+      };
 
-    it('should snakerize properties correctly', () => {
-      const manifest = {
-        defaultLocale: '',
-        chrome: {
-          contentSecurityPolicy: '',
-          versionName: '',
-          omnibox: {
-            keyword: '',
-          },
-          nestedProperty: {
-            versionControl: '',
-          },
-        },
-      } as any;
-
-      manifestPlugin.snakerizeManifest(manifest);
+      manifestPlugin.applyManifestContexts(manifest);
 
       expect(manifest).toMatchObject({
-        default_locale: '',
-        chrome: {
-          content_security_policy: '',
-          version_name: '',
-          omnibox: {
-            keyword: '',
-          },
-          nestedProperty: {
-            version_control: '',
+        content_scripts: [
+          {
+            all_frames: true,
+            matches: [],
+            js: [''],
+          }
+        ],
+      });
+    });
+
+    it('should apply background context', () => {
+      manifestPlugin.workspace.project = {
+        contexts: {
+          background: {
+            outputFile: '',
           },
         },
+      };
+
+      manifestPlugin.applyManifestContexts(manifest);
+
+      expect(manifest).toMatchObject({
+        background: {
+          scripts: [''],
+        },
       });
+    });
+
+    it('should apply popup context', () => {
+      manifestPlugin.workspace.project = {
+        contexts: {
+          popup: {
+            index: '',
+            outputHtml: '',
+          },
+        }
+      };
+
+      manifestPlugin.applyManifestContexts(manifest);
+
+      expect(manifest).toMatchObject({
+        browser_action: {
+          default_popup: '',
+        },
+      })
     });
   });
 });
