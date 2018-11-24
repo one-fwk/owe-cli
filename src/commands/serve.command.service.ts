@@ -14,6 +14,8 @@ export class ServeCommand extends AbstractCommand {
       .description('Compile extensions and start a dev server')
       .option('--hmr', 'Use Hot Module Replacement')
       .action(async (project: string, browser: string, command: Options) => {
+        await this.workspace.validate();
+
         const inputs: Input[] = [];
         inputs.push({ name: 'project', value: project });
         inputs.push({ name: 'browser', value: browser });
