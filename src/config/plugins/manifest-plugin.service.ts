@@ -66,11 +66,12 @@ export class ManifestPlugin extends WebpackPlugin {
   }
 
   private createManifest(): Manifest {
-    const { manifest } = this.workspace.project;
+    // don't manipulate the original object
+    const { manifest } = this.workspace.getProject();
 
-    (<any>Object).values(BrowserTarget).forEach((browser: string) => {
+    for (const browser in BrowserTarget) {
       delete (<any>manifest)[browser];
-    });
+    }
 
     return snakerize(this.manifestKeys, manifest);
   }
