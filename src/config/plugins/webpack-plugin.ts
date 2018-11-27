@@ -2,7 +2,8 @@ import { Injectable } from '@one/core';
 import { Compiler } from 'webpack';
 
 import { WorkspaceService } from '../../workspace';
-import { KeyService } from '../key.service';
+import { ContextService } from '../context.service';
+import { HashService } from '../hash.service';
 
 export interface IWebpackPlugin {
   apply(compiler: Compiler): void;
@@ -12,7 +13,8 @@ export interface IWebpackPlugin {
 export abstract class WebpackPlugin {
   constructor(
     protected readonly workspace: WorkspaceService,
-    protected readonly key: KeyService,
+    protected readonly context: ContextService,
+    protected readonly hash: HashService,
   ) {}
 
   public abstract apply(compiler: Compiler): void;

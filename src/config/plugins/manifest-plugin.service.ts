@@ -1,18 +1,11 @@
 import { Injectable } from '@one/core';
 import { Compiler } from 'webpack';
 
-import { WebpackPlugin } from './webpack-plugin';
+import { ContextService } from '../context.service';
+import { HashService } from '../hash.service';
+import { WorkspaceService } from '../../workspace';
+import { BrowserTarget, ContentScript, Manifest, } from '../../models';
 import { snakerize } from '../../util';
-import {
-  BackgroundContext,
-  BrowserManifest,
-  BrowserTarget, ContentScript,
-  ContentScriptContext,
-  Context,
-  CustomManifest,
-  Manifest, PopupContext,
-  Project,
-} from '../../models';
 
 export type CompilationAsset = {
   source(): string | Buffer;
@@ -20,45 +13,53 @@ export type CompilationAsset = {
 };
 
 @Injectable()
-export class ManifestPlugin extends WebpackPlugin {
+export class ManifestPlugin {
   private readonly manifestKeys = [
     'defaultLocale',
-    'contentSecurityPolicy',
     'versionName',
-    'manifestVersion',
     'homepageUrl',
     'devtoolsPage',
+    {
+      chrome: [
+        'contentSecurityPolicy',
+        'manifestVersion'
+      ],
+    },
   ];
+
+  constructor(
+    protected readonly workspace: WorkspaceService,
+    protected readonly context: ContextService,
+    protected readonly hash: HashService,
+  ) {}
 
   /**
    * Apply contexts from our custom manifest to the used manifest
    * @param manifest
    */
   private applyManifestContexts(manifest: Manifest) {
-    const { contexts } = this.workspace.project;
+    const contentScripts = this.context.getContentScripts();
+    const background = this.context.getBackground();
+    const popup = this.context.getPopup();
 
-    if (contexts[Context.CONTENT_SCRIPTS]) {
-      manifest.content_scripts = (<ContentScriptContext[]>contexts[Context.CONTENT_SCRIPTS])
+    if (contentScripts) {
+      manifest.content_scripts = contentScripts
         .map((csc): ContentScript => ({
           all_frames: csc.allFrames,
           matches: csc.matches,
-          js: [csc.outputFile],
+          js: [csc.outputFile! + '.js'],
         }));
     }
 
-    if (contexts[Context.POPUP]) {
-      const { index, outputHtml } = <PopupContext>contexts[Context.POPUP];
-
-      manifest.browser_action = {
-        default_popup: (index || outputHtml)!,
+    if (background) {
+      manifest.background = {
+        scripts: [background.outputFile! + '.js'],
       };
     }
 
-    if (contexts[Context.BACKGROUND]) {
-      const { outputFile } = <BackgroundContext>contexts[Context.BACKGROUND];
-
-      manifest.background = {
-        scripts: [outputFile],
+    if (popup) {
+      manifest.browser_action = {
+        default_popup: popup.outputHtml!,
       };
     }
 
@@ -67,13 +68,15 @@ export class ManifestPlugin extends WebpackPlugin {
 
   private createManifest(): Manifest {
     // don't manipulate the original object
-    const { manifest } = this.workspace.getProject();
-
-    for (const browser in BrowserTarget) {
-      delete (<any>manifest)[browser];
-    }
+    const { manifest } = this.workspace.project;
 
     return snakerize(this.manifestKeys, manifest);
+
+    /*(<any>Object).values(BrowserTarget).forEach((browser: string) => {
+      (<any>manifest)[browser] = undefined;
+    });
+
+    return newManifest;*/
   }
 
   apply(compiler: Compiler) {
@@ -82,6 +85,7 @@ export class ManifestPlugin extends WebpackPlugin {
       this.applyManifestContexts(manifest);
       const manifestSource = JSON.stringify(manifest);
 
+      console.log(manifestSource);
       compilation.assets['manifest.json'] = {
         source: () => manifestSource,
         size: () => manifestSource.length,
