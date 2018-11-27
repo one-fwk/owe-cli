@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Schema validation schemas sourceRoot should fail if not valid path 1`] = `
+Array [
+  Object {
+    "dataPath": "",
+    "keyword": "regexp",
+    "message": "should pass \\"regexp\\" keyword validation",
+    "params": Object {
+      "keyword": "regexp",
+    },
+    "schemaPath": "#/regexp",
+  },
+]
+`;

@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`manifestSchema permissions should NOT accept anything but strings 1`] = `
+Array [
+  Object {
+    "dataPath": ".permissions[1]",
+    "keyword": "type",
+    "message": "should be string",
+    "params": Object {
+      "type": "string",
+    },
+    "schemaPath": "#/properties/permissions/items/type",
+  },
+]
+`;
+
+exports[`manifestSchema permissions should NOT have duplicate items 1`] = `
+Array [
+  Object {
+    "dataPath": ".permissions",
+    "keyword": "uniqueItems",
+    "message": "should NOT have duplicate items (items ## 1 and 0 are identical)",
+    "params": Object {
+      "i": 0,
+      "j": 1,
+    },
+    "schemaPath": "#/properties/permissions/uniqueItems",
+  },
+]
+`;

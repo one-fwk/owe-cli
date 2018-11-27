@@ -8,7 +8,26 @@ export const toType = (type: Type) => (schema: any = {}) => ({ ...schema, type }
 
 export const toTypeString = toType('string');
 export const toTypeArray = toType('array');
-export const toTypeObject = toType('array');
+export const toTypeObject = toType('object');
+export const toTypeNumber = toType('number');
+
+export const uniqueArray = (items: any) => (schema = {}) => toTypeArray({
+  uniqueItems: true,
+  items,
+  ...schema,
+});
+
+export const filePathSchema = (errorMessage: string) => toTypeString({
+  regexp: '/^[a-z]:((\\/|(\\\\?))[\\w .]+)/i',
+  errorMessage,
+});
+
+export const jsonFileSchema = (errorMessage: string) => toTypeString({
+  regexp: '/^[a-z]:((\\/|(\\\\?))[\\w .]+)+\\.json/i;',
+  errorMessage,
+});
+
+export const uniqueArrayOfStrings = uniqueArray(toTypeString());
 
 export function toSchemaConstants<T>(obj: Object): Const<T>[] {
   return (<any>Object).values(obj).map((value: T) => ({
