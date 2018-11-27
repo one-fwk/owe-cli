@@ -1,6 +1,6 @@
 import { BrowserTarget } from './browser-target';
 import { ProjectType } from './project-type';
-import { CustomManifest } from './manifest';
+import { CustomManifest, Manifest } from './manifest';
 import { Contexts } from './context';
 
 export interface Project {
@@ -10,7 +10,7 @@ export interface Project {
   projectType: ProjectType;
   browserTargets: BrowserTarget[];
   contexts: Contexts;
-  manifest: CustomManifest;
+  manifest: CustomManifest | Manifest;
 }
 
 export interface Workspace {

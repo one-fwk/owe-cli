@@ -1,12 +1,13 @@
 export interface BaseContext {
-  uuid?: string;
+  [key: string]: any;
+  hash?: string;
   entryModule?: string;
-  main: string;
+  entry: string;
   outputFile: string;
 }
 
 export interface PopupContext extends BaseContext {
-  index?: string;
+  template?: string;
   outputHtml?: string;
 }
 

@@ -40,7 +40,7 @@ export interface BrowserAction {
 }
 
 export interface Background {
-  scripts?: string[];
+  scripts: string[];
 }
 
 export interface ContentScript {
