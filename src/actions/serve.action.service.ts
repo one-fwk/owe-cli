@@ -1,4 +1,4 @@
-import { Injectable } from '@one/core';
+import { Injectable, Utils } from '@one/core';
 
 import { AbstractAction } from './abstract-action';
 import { Input } from '../models';
@@ -29,14 +29,19 @@ export class ServeAction extends AbstractAction {
     return (options.find(option => option.name === 'hmr') || {} as any).value;
   }
 
+  private getPortOption(options: Input[]) {
+    return (options.find(option => option.name === 'port') || {} as any).value;
+  }
+
   public async handle(inputs: Input[], options: Input[]) {
     const project = this.getProject(inputs);
     const browser = this.getBrowser(inputs);
     const useHmr = this.getHmrOption(options);
+    const usePort = this.getPortOption(options);
 
     this.workspace.useProject(project);
     this.workspace.targetBrowser(browser);
 
-    const config = await this.webpackConfig.create(true, useHmr);
+    await this.webpackConfig.create(true, useHmr);
   }
 }
