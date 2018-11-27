@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "serve": "owe serve appwriter chrome",
+    "serve": "ts-node index.ts",
     "compile": "webpack --config webpack.config.js"
-  }
+  },
+  "dependencies": {}
 }

@@ -8,19 +8,36 @@ projects:
       - chrome
       - edge
       - firefox
+    manifest:
+      name: Appwriter
+      author: Wizkids A/S
+      version: '1'
+      description: 'Appwriter'
+      permissions:
+        - '*://*.google.com/*'
+        - '<all_urls>'
+        - '*://*.lingapps.dk/*'
+        - '*://*.wizkids.dk/*'
+        - 'webNavigation'
+        - 'webRequest'
+        - 'webRequestBlocking'
+        - 'tabs'
+      chrome:
+        manifestVersion: 2
+        contentSecurityPolicy: "script-src 'self' 'sha256-MhvddDCgXl8osKtkruB9ttNaKc9pfk6NXBdJvtr602Q=' 'sha256-owgPckWafrsrwS6mgtj423kTKzpIkoOoHlWckekH9JA=' 'sha256-K615d6zqfoojMrTJXvIPsWOKPNXqnoVgglBmlmX0Npc='; object-src 'self'"
     contexts:
       popup:
-        main: popup/app.popup.module#AppPopupModule
+        entry: popup/app.popup.module#AppPopupModule
         outputFile: popup/main
         outputHtml: popup/index.html
       contentScripts:
-      - main: content/app.content.module#AppContentModule
-        outputFile: content/main
-        matches:
-          - <all_urls>
-        allFrames: true
-      - main: content/word/content.word.module#ContentWordModule
-        outputFile: content/word
+        - entry: content/app.content.module#AppContentModule
+          outputFile: content/main
+          matches:
+            - '<all_urls>'
+          allFrames: true
+        #- entry: content/word/content.word.module#ContentWordModule
+        #  outputFile: content/word
       background:
-        main: background/app.background.module#AppBackgroundModule
+        entry: background/app.background.module#AppBackgroundModule
         outputFile: background
