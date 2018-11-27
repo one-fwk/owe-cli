@@ -1,39 +1,54 @@
 import { Injectable } from '@one/core';
 import * as fs from 'fs-extra';
-import Ajv from 'ajv';
+import * as Ajv from 'ajv';
 import * as path from 'path';
 import * as YAML from 'yaml';
 
-import { BrowserTarget, Project, Workspace } from '../models';
 import { workspaceSchema } from './schemas';
-import { findUp } from '../util';
+import { find } from '../util';
+import {
+  BrowserTarget,
+  Project,
+  Workspace,
+} from '../models';
 
 @Injectable()
 export class WorkspaceService {
   public schema!: Workspace;
   public project!: Project;
   public browser!: BrowserTarget;
+  private cwd = process.cwd();
 
   private readonly ajv = new Ajv({
     useDefaults: true,
+    allErrors: true,
+    jsonPointers: true,
   });
 
-  public getSourceRoot() {
-    return this.dir(this.project.sourceRoot);
+  public getProjectRoot(...paths: string[]) {
+    return this.dir(this.project.sourceRoot, ...paths);
   }
 
   /**
    * Returns a copy of project
    */
   public getProject(): Project {
-    return { ...this.project };
+    return { ...this.project } as Project;
+  }
+
+  public getTsConfigFile() {
+    return this.dir(this.project.tsConfig);
   }
 
   /**
    * Returns an absolute path relative to CWD
    */
   public dir(...paths: string[]) {
-    return path.join(process.cwd(), ...paths);
+    return path.join(this.cwd, ...paths);
+  }
+
+  public setCwd(cwd: string) {
+    this.cwd = cwd;
   }
 
   public useProject(project: string) {
@@ -42,11 +57,12 @@ export class WorkspaceService {
     }
 
     // Never directly manipulate the project object
-    this.project = Object.freeze(this.schema.projects[project]);
+    // this.project = Object.freeze(this.schema.projects[project]);
+    this.project = this.schema.projects[project];
   }
 
   public targetBrowser(browser: BrowserTarget) {
-    if (!(browser in BrowserTarget)) {
+    if (!(<any>Object).values(BrowserTarget).includes(browser)) {
       throw new Error('Invalid browser specified');
     }
 
@@ -74,15 +90,18 @@ export class WorkspaceService {
   }
 
   public validateWorkspaceSchema(workspace: Workspace) {
+    require('ajv-keywords')(this.ajv, ['regexp']);
+    require('ajv-errors')(this.ajv);
+
     return this.ajv.validate(workspaceSchema, workspace);
   }
 
   public async validate() {
-    const workspacePath = await findUp([
+    const workspacePath = await find([
       'owe.yaml',
       'owe.yml',
       'owe.json',
-    ], process.cwd());
+    ], this.dir());
 
     if (!workspacePath) {
       throw new Error('Workspace definitions could not be found');
@@ -92,7 +111,8 @@ export class WorkspaceService {
     const valid = this.validateWorkspaceSchema(workspace);
 
     if (!valid) {
-      // handle errors here
+      console.log(this.ajv.errors);
+      process.exit(1);
     } else {
       this.schema = workspace;
     }
